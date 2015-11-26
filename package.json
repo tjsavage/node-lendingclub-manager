@@ -1,0 +1,26 @@
+{
+  "name": "node-lendingclub-manager",
+  "version": "0.0.0",
+  "description": "A management tool for lendingclub",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjsavage/node-lendingclub-manager.git"
+  },
+  "keywords": [
+    "lendingclub"
+  ],
+  "author": "Taylor Savage",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjsavage/node-lendingclub-manager/issues"
+  },
+  "homepage": "https://github.com/tjsavage/node-lendingclub-manager#readme",
+  "dependencies": {
+    "chai": "^3.4.1",
+    "chai-as-promised": "^5.1.0"
+  }
+}
