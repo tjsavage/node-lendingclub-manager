@@ -48,6 +48,13 @@ var is36Week = function(loan) {
 manager.filterListedLoans(isDoubleDigitInterest, is36week).then(console.log);
 ```
 
+Filter against loans that you've already invested in:
+
+```js
+manager.filterListedLoans(manager.hasNotAlreadyInvested).then(console.log);
+```
+
+
 ### Creating and submitting an order
 
 ```js

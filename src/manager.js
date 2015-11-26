@@ -39,10 +39,32 @@ Manager.prototype.listLoans = function listLoans(options) {
       if (err) {
         reject(err);
       } else {
+        if (!("loans" in result)) {
+          throw new Error("Unexpected format of result from API call")
+        }
         resolve(result.loans);
       }
     })
   })
+}
+
+Manager.prototype.filterListedLoans = function filterListedLoans() {
+  var filters = arguments;
+
+  return this.listLoans().then(function(loans) {
+    var filteredLoans = loans;
+
+    if (filters.length) {
+      for (var key in filters) {
+        if (filters.hasOwnProperty(key)) {
+          filteredLoans = filteredLoans.filter(filters[key]);
+        }
+      }
+    }
+
+    return filteredLoans;
+  })
+
 }
 
 module.exports = Manager;
