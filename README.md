@@ -57,6 +57,8 @@ manager.filterListedLoans(manager.hasNotAlreadyInvested).then(console.log);
 
 ### Creating and submitting an order
 
+Basic $25/order:
+
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
   .then(manager.createOrder)
@@ -64,4 +66,59 @@ manager.filterListedLoans(isDoubleDigitInterest)
   .then(function(result) {
     console.log("Order results:", result)
   });
+```
+
+Custom order amounts:
+```js
+manager.filterListedLoans(isDoubleDigitInterest)
+  .then(function(loans) {
+    return manager.createOrder(loans, 30.0);
+  })
+  .then(manager.submitOrder)
+  .then(function(result) {
+    console.log("Order results:", result);
+  });
+```
+
+Different order amount per loan:
+```js
+manager.filterListedLoans(isDoubleDigitInterest)
+  .then(function(loans) {
+    return manager.createOrder(loans, function(loan) {
+      if (loan.intRate > 12) {
+        return 50;
+      } else {
+        return 25;
+      }
+    })
+  });
+```
+
+Generating an order to get nice ergonomics
+```js
+manager.filterListedLoans(isDoubleDigitInterest)
+  .then(manager.createBoundOrder(function(loan) {
+    if (loan.intRate > 12) {
+      return 50;
+    } else {
+      return 25;
+    }
+  }))
+  .then(manager.submitOrder)
+
+
+### Adding orders to a portfolio
+
+```js
+var order = manager.filterListedLoans(isDoubleDigitInterest).then(manager.createOrder);
+var portfolio = manager.createPortfolio("My Portfolio", "A good portfolio");
+
+Promise.all([order, portfolio]).then(function(results) {
+  var order = results[0];
+  var portfolio = results[1];
+  return manager.assignOrderToPortfolio(order, portfolio);
+}).then(manager.submitOrder)
+  .then(function(result) {
+    console.log("Order results:", results);
+  })
 ```

@@ -1,4 +1,5 @@
 var LendingClub = require('node-lendingclub');
+var validate = require('./validate');
 
 var Manager = function(options) {
   this._settings = {
@@ -63,8 +64,72 @@ Manager.prototype.filterListedLoans = function filterListedLoans() {
     }
 
     return filteredLoans;
-  })
+  });
+}
 
+/**
+* @param loans {Array<Object>} An array of loan objects (as returned by the LC API) to add create orders for.
+* @param requestedAmount {number|function} Optional, either a number to invest in each loan,
+*   or a function that gets passed the loan object as its only parameter and returns an
+*   amount to invest in each loan.
+* @param portfolioId {number|function} Optional, either a portfolio id to assign the order to
+*   or a function that returns a portfolio id to assign the order to. Portfolio id is a number.
+*/
+Manager.prototype.createOrder = function createOrder(loans, requestedAmount, portfolioId) {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    if (!loans.length) {
+      throw new Error("Invalid loan array");
+    }
+
+    if (!self._settings.investorId) {
+      throw new Error("No investorId provided");
+    }
+
+    var orderPromises = [];
+
+    loans.forEach(function(loan) {
+      validate.validateLoan(loan);
+
+      var order = {};
+      order.loanId = loan.id;
+
+      var requestedAmountPromise = Promise.resolve().then(function() {
+        if (typeof requestedAmount == 'number') {
+          return requestedAmount;
+        } else if (typeof requestedAmount == 'function') {
+          return requestedAmount(loan);
+        } else if (typeof requestedAmount == 'undefined') {
+          return 25;
+        } else {
+          throw new Error("requestedAmount type not a number or a function");
+        }
+      });
+
+      var portfolioIdPromise = Promise.resolve();
+
+
+      var orderPromise = Promise.all([requestedAmountPromise, portfolioIdPromise])
+        .then(function(results) {
+          order.requestedAmount = results[0];
+
+          if (portfolioId) {
+            order.portfolioId = results[1];
+          }
+          return order;
+      });
+
+      orderPromises.push(orderPromise);
+    });
+
+    Promise.all(orderPromises).then(function(orders) {
+      return {
+        aid: self._settings.investorId,
+        orders: orders
+      }
+    }).then(resolve, reject);
+  });
 }
 
 module.exports = Manager;
