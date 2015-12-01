@@ -94,29 +94,17 @@ manager.filterListedLoans(isDoubleDigitInterest)
   });
 ```
 
-Generating an order to get nice ergonomics
-```js
-manager.filterListedLoans(isDoubleDigitInterest)
-  .then(manager.createBoundOrder(function(loan) {
-    if (loan.intRate > 12) {
-      return 50;
-    } else {
-      return 25;
-    }
-  }))
-  .then(manager.submitOrder)
-
 
 ### Adding orders to a portfolio
 
 ```js
-var order = manager.filterListedLoans(isDoubleDigitInterest).then(manager.createOrder);
+var loans = manager.filterListedLoans(isDoubleDigitInterest);
 var portfolio = manager.createPortfolio("My Portfolio", "A good portfolio");
 
-Promise.all([order, portfolio]).then(function(results) {
-  var order = results[0];
+Promise.all([loans, portfolio]).then(function(results) {
+  var loans = results[0];
   var portfolio = results[1];
-  return manager.assignOrderToPortfolio(order, portfolio);
+  return manager.createOrder(loans, 25, portfolio.portfolioId);
 }).then(manager.submitOrder)
   .then(function(result) {
     console.log("Order results:", results);

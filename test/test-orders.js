@@ -15,11 +15,11 @@ var TEST_URL = "http://localhost";
 
 describe('createOrder', function() {
   function getLoanList() {
-    return require('./responses/just_loans.json');
+    return JSON.parse(JSON.stringify(require('./responses/just_loans.json')));
   }
 
   function getOrders() {
-    return require('./responses/just_loans_as_orders.json');
+    return JSON.parse(JSON.stringify(require('./responses/just_loans_as_orders.json')));
   }
 
   describe('when incorrectly authenticated', function() {
@@ -129,10 +129,94 @@ describe('createOrder', function() {
       })).to.eventually.be.rejectedWith(/orderAmount/);
     })
 
+    it('should correctly use a custom portfolioId', function() {
+      var loanList = getLoanList();
+      var orders = getOrders();
+      orders.forEach(function(order) {
+        orders.requestedAmount = 25;
+        order.portfolioId = 55555;
+      });
+
+      return expect(manager.createOrder(loanList, 25, 55555).then(JSON.stringify)).to.eventually.equal(JSON.stringify({
+        aid: 123,
+        orders: orders
+      }));
+    });
+
+    it('should correctly apply a function to get a custom portfolioId', function() {
+      var loanList = getLoanList();
+      var orders = getOrders();
+      orders.forEach(function(order, i) {
+        order.requestedAmount = 25;
+        order.portfolioId = i == 0 ? 55555 : 66666;
+      });
+
+      return expect(manager.createOrder(loanList, 25, function(order) {
+        if (order.term == 36) {
+          return 55555;
+        }
+        return 66666;
+      })).to.eventually.deep.equal({
+        aid: 123,
+        orders: orders
+      });
+    });
+
+    it('should correctly apply a function to get a custom portfolioId and not set it if the function returns null', function() {
+      var loanList = getLoanList();
+      var orders = getOrders();
+      orders.forEach(function(order, i) {
+        order.requestedAmount = 25;
+        if (i == 0) {
+          order.portfolioId = 55555
+        }
+      });
+
+      return expect(manager.createOrder(loanList, 25, function(order) {
+        if (order.term == 36) {
+          return 55555;
+        }
+        return null;
+      })).to.eventually.deep.equal({
+        aid: 123,
+        orders: orders
+      });
+    });
+
+    it('should correctly apply a function that returns a promise to get a custom portfolioId', function() {
+      var loanList = getLoanList();
+      var orders = getOrders();
+      orders.forEach(function(order, i) {
+        order.requestedAmount = 50;
+        order.portfolioId = i == 0 ? 55555 : 66666;
+      });
+
+      return expect(manager.createOrder(loanList, 50, function(order) {
+        return new Promise(function(resolve, reject) {
+          if (order.term == 36) {
+            resolve(55555);
+          }
+          resolve(66666);
+        });
+      })).to.eventually.deep.equal({
+        aid: 123,
+        orders: orders
+      });
+    });
+
+    it('should correctly throw if a function that returns a promise to get a custom portfolioId throws', function() {
+      var loanList = getLoanList();
+
+      return expect(manager.createOrder(loanList, 50, function(order) {
+        return new Promise(function(resolve, reject){
+          if (order.term == 36) {
+            resolve(25);
+          }
+          reject(new Error("couldn't get a portfolioId"));
+        })
+      })).to.eventually.be.rejectedWith(/portfolioId/);
+    })
+
   });
 
 });
-
-describe('createBoundOrder', function() {
-
-})

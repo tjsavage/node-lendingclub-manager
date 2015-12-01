@@ -107,16 +107,27 @@ Manager.prototype.createOrder = function createOrder(loans, requestedAmount, por
         }
       });
 
-      var portfolioIdPromise = Promise.resolve();
+      var portfolioIdPromise = Promise.resolve().then(function() {
+        if (typeof portfolioId == 'number') {
+          return portfolioId;
+        } else if (typeof portfolioId == 'function') {
+          return portfolioId(loan);
+        } else if (typeof portfolioId == 'undefined') {
+          return null;
+        } else {
+          throw new Error("requestedAmount type not a number or a function");
+        }
+      });
 
 
       var orderPromise = Promise.all([requestedAmountPromise, portfolioIdPromise])
         .then(function(results) {
           order.requestedAmount = results[0];
 
-          if (portfolioId) {
+          if (results[1] && results[1] != null) {
             order.portfolioId = results[1];
           }
+
           return order;
       });
 
