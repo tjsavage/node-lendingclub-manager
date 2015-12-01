@@ -143,4 +143,37 @@ Manager.prototype.createOrder = function createOrder(loans, requestedAmount, por
   });
 }
 
+/**
+* Creates a portfolio with the given name and description, and returns a promise
+* that resolves to the portfolio object, as returned from the LC API. throws
+* if not authenticated or if the server goes wrong.
+* @param portfolioName {string} - The name of the portfolio to create
+* @param portfolioDescription {string} - A description of the portfolio
+*/
+Manager.prototype.createPortfolio = function createPortfolio(portfolioName, portfolioDescription) {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    if (!self._settings.investorId) {
+      throw new Error("No investorId provided");
+    }
+
+    if (!self._settings.key) {
+      throw new Error("No key provided");
+    }
+
+    self._client.createPortfolio({
+      aid: self._settings.investorId,
+      portfolioName: portfolioName,
+      portfolioDescription: portfolioDescription
+    }, function(err, result) {
+      if (err) {
+        console.log(err);
+        throw new Error(err);
+      }
+      resolve(result);
+    });
+  })
+}
+
 module.exports = Manager;

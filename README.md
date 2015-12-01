@@ -94,6 +94,22 @@ manager.filterListedLoans(isDoubleDigitInterest)
   });
 ```
 
+Different order amount per loan, via promises:
+```js
+manager.filterListedLoans(isDoubleDigitInterest)
+  .then(function(loans) {
+    return manager.createOrder(loans, function(loan) {
+      return new Promise(function(resolve, reject) {
+        if (loan.intRate > 12) {
+          resolve(50);
+        } else {
+          resolve(25);
+        }
+      });
+    })
+  });
+```
+
 
 ### Adding orders to a portfolio
 
