@@ -13,7 +13,7 @@ var LendingclubManager = require('../index');
 
 var TEST_URL = "http://localhost";
 
-describe('createOrder', function() {
+describe('createOrders', function() {
   function getLoanList() {
     return JSON.parse(JSON.stringify(require('./responses/just_loans.json')));
   }
@@ -29,7 +29,7 @@ describe('createOrder', function() {
         baseUrl: TEST_URL
       });
 
-      return expect(manager.createOrder(getLoanList())).to.eventually.be.rejectedWith(/investorId/);
+      return expect(manager.createOrders(getLoanList())).to.eventually.be.rejectedWith(/investorId/);
     });
   });
 
@@ -45,20 +45,17 @@ describe('createOrder', function() {
     });
 
     it('should throw if passed an empty array', function() {
-      return expect(manager.createOrder([])).to.eventually.be.rejectedWith(/loan/);
+      return expect(manager.createOrders([])).to.eventually.be.rejectedWith(/loan/);
     });
 
     it('should throw if passed an array of not loans', function() {
-      return expect(manager.createOrder([{"a": "b"}, {"c": "d"}])).to.eventually.be.rejectedWith(/loan/);
+      return expect(manager.createOrders([{"a": "b"}, {"c": "d"}])).to.eventually.be.rejectedWith(/loan/);
     });
 
     it('should correctly create a basic order object with each order being $25', function() {
       var loanList = getLoanList();
 
-      return expect(manager.createOrder(loanList)).to.eventually.deep.equal({
-        aid: 123,
-        orders: getOrders()
-      });
+      return expect(manager.createOrders(loanList)).to.eventually.deep.equal(getOrders());
     });
 
     it('should correctly use a custom order value', function() {
@@ -68,10 +65,7 @@ describe('createOrder', function() {
         order.requestedAmount = 50;
       });
 
-      return expect(manager.createOrder(loanList, 50)).to.eventually.deep.equal({
-        aid: 123,
-        orders: orders
-      });
+      return expect(manager.createOrders(loanList, 50)).to.eventually.deep.equal(orders);
     });
 
     it('should correctly apply a function to get a custom order amount', function() {
@@ -81,15 +75,12 @@ describe('createOrder', function() {
         order.requestedAmount = i == 0 ? 25 : 50;
       });
 
-      return expect(manager.createOrder(loanList, function(order) {
+      return expect(manager.createOrders(loanList, function(order) {
         if (order.term == 36) {
           return 25;
         }
         return 50;
-      })).to.eventually.deep.equal({
-        aid: 123,
-        orders: orders
-      });
+      })).to.eventually.deep.equal(orders);
     });
 
     it('should correctly apply a function that returns a promise to get a custom order amount', function() {
@@ -99,17 +90,14 @@ describe('createOrder', function() {
         order.requestedAmount = i == 0 ? 25 : 50;
       });
 
-      return expect(manager.createOrder(loanList, function(order) {
+      return expect(manager.createOrders(loanList, function(order) {
         return new Promise(function(resolve, reject) {
           if (order.term == 36) {
             resolve(25);
           }
           resolve(50);
         });
-      })).to.eventually.deep.equal({
-        aid: 123,
-        orders: orders
-      });
+      })).to.eventually.deep.equal(orders);
     });
 
     it('should correctly throw if a function that returns a promise to get a custom order amount throws', function() {
@@ -119,7 +107,7 @@ describe('createOrder', function() {
         order.requestedAmount = i == 0 ? 25 : 50;
       });
 
-      return expect(manager.createOrder(loanList, function(order) {
+      return expect(manager.createOrders(loanList, function(order) {
         return new Promise(function(resolve, reject){
           if (order.term == 36) {
             resolve(25);
@@ -137,10 +125,7 @@ describe('createOrder', function() {
         order.portfolioId = 55555;
       });
 
-      return expect(manager.createOrder(loanList, 25, 55555).then(JSON.stringify)).to.eventually.equal(JSON.stringify({
-        aid: 123,
-        orders: orders
-      }));
+      return expect(manager.createOrders(loanList, 25, 55555).then(JSON.stringify)).to.eventually.equal(JSON.stringify(orders));
     });
 
     it('should correctly apply a function to get a custom portfolioId', function() {
@@ -151,15 +136,12 @@ describe('createOrder', function() {
         order.portfolioId = i == 0 ? 55555 : 66666;
       });
 
-      return expect(manager.createOrder(loanList, 25, function(order) {
+      return expect(manager.createOrders(loanList, 25, function(order) {
         if (order.term == 36) {
           return 55555;
         }
         return 66666;
-      })).to.eventually.deep.equal({
-        aid: 123,
-        orders: orders
-      });
+      })).to.eventually.deep.equal(orders);
     });
 
     it('should correctly apply a function to get a custom portfolioId and not set it if the function returns null', function() {
@@ -172,15 +154,12 @@ describe('createOrder', function() {
         }
       });
 
-      return expect(manager.createOrder(loanList, 25, function(order) {
+      return expect(manager.createOrders(loanList, 25, function(order) {
         if (order.term == 36) {
           return 55555;
         }
         return null;
-      })).to.eventually.deep.equal({
-        aid: 123,
-        orders: orders
-      });
+      })).to.eventually.deep.equal(orders);
     });
 
     it('should correctly apply a function that returns a promise to get a custom portfolioId', function() {
@@ -191,23 +170,20 @@ describe('createOrder', function() {
         order.portfolioId = i == 0 ? 55555 : 66666;
       });
 
-      return expect(manager.createOrder(loanList, 50, function(order) {
+      return expect(manager.createOrders(loanList, 50, function(order) {
         return new Promise(function(resolve, reject) {
           if (order.term == 36) {
             resolve(55555);
           }
           resolve(66666);
         });
-      })).to.eventually.deep.equal({
-        aid: 123,
-        orders: orders
-      });
+      })).to.eventually.deep.equal(orders);
     });
 
     it('should correctly throw if a function that returns a promise to get a custom portfolioId throws', function() {
       var loanList = getLoanList();
 
-      return expect(manager.createOrder(loanList, 50, function(order) {
+      return expect(manager.createOrders(loanList, 50, function(order) {
         return new Promise(function(resolve, reject){
           if (order.term == 36) {
             resolve(25);

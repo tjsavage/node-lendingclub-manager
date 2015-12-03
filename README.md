@@ -61,7 +61,7 @@ Basic $25/order:
 
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
-  .then(manager.createOrder)
+  .then(manager.createOrders)
   .then(manager.submitOrders)
   .then(function(result) {
     console.log("Order results:", result)
@@ -72,7 +72,7 @@ Custom order amounts:
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
   .then(function(loans) {
-    return manager.createOrder(loans, 30.0);
+    return manager.createOrders(loans, 30.0);
   })
   .then(manager.submitOrders)
   .then(function(result) {
@@ -84,7 +84,7 @@ Different order amount per loan:
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
   .then(function(loans) {
-    return manager.createOrder(loans, function(loan) {
+    return manager.createOrders(loans, function(loan) {
       if (loan.intRate > 12) {
         return 50;
       } else {
@@ -98,7 +98,7 @@ Different order amount per loan, via promises:
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
   .then(function(loans) {
-    return manager.createOrder(loans, function(loan) {
+    return manager.createOrders(loans, function(loan) {
       return new Promise(function(resolve, reject) {
         if (loan.intRate > 12) {
           resolve(50);
@@ -120,8 +120,8 @@ var portfolio = manager.createPortfolio("My Portfolio", "A good portfolio");
 Promise.all([loans, portfolio]).then(function(results) {
   var loans = results[0];
   var portfolio = results[1];
-  return manager.createOrder(loans, 25, portfolio.portfolioId);
-}).then(manager.submitOrder)
+  return manager.createOrders(loans, 25, portfolio.portfolioId);
+}).then(manager.submitOrders)
   .then(function(result) {
     console.log("Order results:", results);
   })

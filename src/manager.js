@@ -68,6 +68,9 @@ Manager.prototype.filterListedLoans = function filterListedLoans() {
 }
 
 /**
+* Takes an array of loan objects, and returns an array of corresponding order objects,
+* as expected by the lending club API. Each order object has a loanId, requestedAmount,
+* and optional portfolioId.
 * @param loans {Array<Object>} An array of loan objects (as returned by the LC API) to add create orders for.
 * @param requestedAmount {number|function} Optional, either a number to invest in each loan,
 *   or a function that gets passed the loan object as its only parameter and returns an
@@ -75,7 +78,7 @@ Manager.prototype.filterListedLoans = function filterListedLoans() {
 * @param portfolioId {number|function} Optional, either a portfolio id to assign the order to
 *   or a function that returns a portfolio id to assign the order to. Portfolio id is a number.
 */
-Manager.prototype.createOrder = function createOrder(loans, requestedAmount, portfolioId) {
+Manager.prototype.createOrders = function createOrders(loans, requestedAmount, portfolioId) {
   var self = this;
 
   return new Promise(function(resolve, reject) {
@@ -134,12 +137,7 @@ Manager.prototype.createOrder = function createOrder(loans, requestedAmount, por
       orderPromises.push(orderPromise);
     });
 
-    Promise.all(orderPromises).then(function(orders) {
-      return {
-        aid: self._settings.investorId,
-        orders: orders
-      }
-    }).then(resolve, reject);
+    Promise.all(orderPromises).then(resolve, reject);
   });
 }
 
