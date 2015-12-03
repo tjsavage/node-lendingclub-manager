@@ -62,7 +62,7 @@ Basic $25/order:
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
   .then(manager.createOrder)
-  .then(manager.submitOrder)
+  .then(manager.submitOrders)
   .then(function(result) {
     console.log("Order results:", result)
   });
@@ -74,7 +74,7 @@ manager.filterListedLoans(isDoubleDigitInterest)
   .then(function(loans) {
     return manager.createOrder(loans, 30.0);
   })
-  .then(manager.submitOrder)
+  .then(manager.submitOrders)
   .then(function(result) {
     console.log("Order results:", result);
   });

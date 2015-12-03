@@ -181,4 +181,34 @@ Manager.prototype.createPortfolio = function createPortfolio(portfolioName, port
   })
 }
 
+/**
+* Takes an array of order objects and submits it to the Lending Club API
+* Returns a promise that resolves to the response from the API.
+* @param orders {Array<Object>} - The order array as requested by the Lending Club API
+*/
+Manager.prototype.submitOrders = function submitOrders(orders) {
+  var self = this;
+  return new Promise(function(resolve, reject) {
+    if (!self._settings.investorId) {
+      throw new Error("No investorId provided");
+    }
+
+    if (!self._settings.key) {
+      throw new Error("No key provided");
+    }
+
+    self._client.submitOrders({
+      aid: parseInt(self._settings.investorId),
+      investorId: self._settings.investorId,
+      orders: orders
+    }, function(err, body) {
+      if (err) {
+        throw new Error(err);
+      }
+      resolve(body);
+    })
+
+  })
+}
+
 module.exports = Manager;
