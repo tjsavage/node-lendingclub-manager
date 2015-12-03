@@ -163,13 +163,18 @@ Manager.prototype.createPortfolio = function createPortfolio(portfolioName, port
     }
 
     self._client.createPortfolio({
-      aid: self._settings.investorId,
+      investorId: self._settings.investorId,
+      aid: parseInt(self._settings.investorId),
       portfolioName: portfolioName,
       portfolioDescription: portfolioDescription
     }, function(err, result) {
       if (err) {
         console.log(err);
         throw new Error(err);
+      }
+
+      if ("errors" in result) {
+        reject(result);
       }
       resolve(result);
     });
