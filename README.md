@@ -72,7 +72,7 @@ Custom order amounts:
 ```js
 manager.filterListedLoans(isDoubleDigitInterest)
   .then(function(loans) {
-    return manager.createOrders(loans, 30.0);
+    return manager.createOrders(loans, 50.0);
   })
   .then(manager.submitOrders)
   .then(function(result) {

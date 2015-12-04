@@ -66,6 +66,10 @@ describe('submitting orders', function() {
       });
     });
 
+    it('should throw an error if the order array does not have valid orders', function() {
+      return expect(manager.submitOrders([{a: "a", b: "b"}, {c: "c"}])).to.eventually.be.rejected;
+    });
+
     it('should correctly submit an order', function() {
       var scope = nock(TEST_URL)
         .post("/accounts/11111/orders", getOrderRequest())

@@ -86,9 +86,7 @@ Manager.prototype.createOrders = function createOrders(loans, requestedAmount, p
       throw new Error("Invalid loan array");
     }
 
-    if (!self._settings.investorId) {
-      throw new Error("No investorId provided");
-    }
+    self.checkIfAuthenticated();
 
     var orderPromises = [];
 
@@ -142,6 +140,29 @@ Manager.prototype.createOrders = function createOrders(loans, requestedAmount, p
 }
 
 /**
+* Gets the user's portfolios.
+*/
+Manager.prototype.getPortfolios = function getPortfolios() {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    self.checkIfAuthenticated();
+
+    self._client.portfolios({
+      investorId: self._settings.investorId
+    }, function(err, result) {
+      if (err) {
+        throw new Error(err);
+      }
+      if ("errors" in result) {
+        reject(result);
+      }
+      resolve(result);
+    })
+  })
+}
+
+/**
 * Creates a portfolio with the given name and description, and returns a promise
 * that resolves to the portfolio object, as returned from the LC API. throws
 * if not authenticated or if the server goes wrong.
@@ -152,13 +173,7 @@ Manager.prototype.createPortfolio = function createPortfolio(portfolioName, port
   var self = this;
 
   return new Promise(function(resolve, reject) {
-    if (!self._settings.investorId) {
-      throw new Error("No investorId provided");
-    }
-
-    if (!self._settings.key) {
-      throw new Error("No key provided");
-    }
+    self.checkIfAuthenticated();
 
     self._client.createPortfolio({
       investorId: self._settings.investorId,
@@ -167,7 +182,6 @@ Manager.prototype.createPortfolio = function createPortfolio(portfolioName, port
       portfolioDescription: portfolioDescription
     }, function(err, result) {
       if (err) {
-        console.log(err);
         throw new Error(err);
       }
 
@@ -186,14 +200,9 @@ Manager.prototype.createPortfolio = function createPortfolio(portfolioName, port
 */
 Manager.prototype.submitOrders = function submitOrders(orders) {
   var self = this;
-  return new Promise(function(resolve, reject) {
-    if (!self._settings.investorId) {
-      throw new Error("No investorId provided");
-    }
 
-    if (!self._settings.key) {
-      throw new Error("No key provided");
-    }
+  return new Promise(function(resolve, reject) {
+    self.checkIfAuthenticated();
 
     self._client.submitOrders({
       aid: parseInt(self._settings.investorId),
@@ -207,6 +216,16 @@ Manager.prototype.submitOrders = function submitOrders(orders) {
     })
 
   })
+}
+
+Manager.prototype.checkIfAuthenticated = function checkIfAuthenticated() {
+  if (!this._settings.investorId) {
+    throw new Error("No investorId provided");
+  }
+
+  if (!this._settings.key) {
+    throw new Error("No key provided");
+  }
 }
 
 module.exports = Manager;

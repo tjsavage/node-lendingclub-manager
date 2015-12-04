@@ -14,6 +14,58 @@ var LendingclubManager = require('../index');
 var TEST_URL = "http://localhost";
 
 describe('test-portfolios', function() {
+  describe('getPortfolios', function() {
+    describe('when not authenticated', function() {
+      it('should throw if investorId was never set', function() {
+        var manager = new LendingclubManager({
+          key: "key",
+          baseUrl: TEST_URL
+        });
+
+        return expect(manager.getPortfolios()).to.eventually.be.rejectedWith(/.*investorId.*/);
+      });
+
+      it('should throw if key was never set', function() {
+        var manager = new LendingclubManager({
+          investorId: "11111",
+          baseUrl: TEST_URL
+        });
+
+        return expect(manager.getPortfolios()).to.eventually.be.rejectedWith(/key/);
+      });
+    });
+
+    describe('when authenticated', function() {
+      var manager;
+
+      beforeEach(function() {
+        manager = new LendingclubManager({
+          investorId: "11111",
+          key: "key",
+          baseUrl: TEST_URL
+        });
+      });
+
+      it('should get the portfolios correctly', function() {
+        var scope = nock(TEST_URL)
+          .get('/accounts/11111/portfolios')
+          .replyWithFile(200, __dirname + '/responses/portfolios.json');
+
+        return expect(manager.getPortfolios()).to.eventually.deep.equal({
+        	"myPortfolios":[
+        	{
+        		"portfolioId":11111,
+        		"portfolioName":"Portfolio1",
+        		"portfolioDescription":"Sample Portfolio Description"},
+        	{
+        		"portfolioId":22222,
+        		"portfolioName":"Portfolio2",
+        		"portfolioDescription":null
+        	}]
+        })
+      })
+    })
+  })
   describe('createPortfolio', function() {
     describe('when not authenticated', function() {
       it('should throw if investorId was never set', function() {
