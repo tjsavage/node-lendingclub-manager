@@ -163,6 +163,35 @@ Manager.prototype.getPortfolios = function getPortfolios() {
 }
 
 /**
+* Gets the user's notes owned.
+* @return Array<Object> Returns a promise that resolves to an array of the note objects, as returned by the LC API.
+*/
+Manager.prototype.notesOwned = function notesOwned() {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    self.checkIfAuthenticated();
+
+    self._client.notes({
+      investorId: self._settings.investorId
+    }, function(err, result) {
+      if (err) {
+        throw new Error(err);
+      }
+      if ("errors" in result) {
+        reject(result);
+      }
+
+      if (!("myNotes" in result)) {
+        throw new Error("Unexpected notes response from API");
+      }
+
+      resolve(result.myNotes);
+    })
+  })
+}
+
+/**
 * Creates a portfolio with the given name and description, and returns a promise
 * that resolves to the portfolio object, as returned from the LC API. throws
 * if not authenticated or if the server goes wrong.

@@ -51,7 +51,20 @@ manager.filterListedLoans(isDoubleDigitInterest, is36week).then(console.log);
 Filter against loans that you've already invested in:
 
 ```js
-manager.filterListedLoans(manager.hasNotAlreadyInvested).then(console.log);
+var notesOwned = manager.notesOwned();
+
+notesOwned.then(function(notes) {
+  var justLoanIds = notes.map(function(note) {
+    return note.loanId;
+  });
+
+  function doesNotOwn(loan) {
+    return justLoanIds.indexOf(loan.id) != -1;
+  }
+
+  manager.filterListedLoans(doesNotOwn).then(console.log);
+})
+
 ```
 
 
