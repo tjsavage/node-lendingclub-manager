@@ -1,7 +1,7 @@
 {
   "name": "node-lendingclub-manager",
-  "version": "0.0.0",
-  "description": "A management tool for lendingclub",
+  "version": "0.0.1",
+  "description": "A management tool for accessing the lendingclub API",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/tjsavage/node-lendingclub-manager#readme",
   "dependencies": {
+    "node-lendingclub": "^0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.4",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0"
   }
