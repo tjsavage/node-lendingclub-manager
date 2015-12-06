@@ -68,6 +68,30 @@ describe('end-to-end', function() {
         ]
       });
 
+  });
+
+  it('should be able to filter out loans already invested in', function() {
+    var scope = setupBasicServer(['listLoans', 'ownedNotes']);
+
+    var manager = new LendingclubManager({
+      key: "key",
+      investorId: "11111",
+      baseUrl: TEST_URL
+    });
+
+    var notesOwned = manager.notesOwned();
+
+    return notesOwned.then(function(notes) {
+      var justLoanIds = notes.map(function(note) {
+        return note.loanId;
+      });
+
+      function doesNotOwn(loan) {
+        return justLoanIds.indexOf(loan.id) != -1;
+      }
+
+      return expect(manager.filterListedLoans(doesNotOwn)).to.eventually.have.length(2);
+    })
   })
 
   var setupBasicServer = function(optionsArr) {
@@ -75,6 +99,43 @@ describe('end-to-end', function() {
 
     if (optionsArr.indexOf("listLoans") != -1) {
       scope = scope.get('/loans/listing?showAll=true').replyWithFile(200, __dirname + '/responses/loans_for_order.json');
+    }
+
+    if (optionsArr.indexOf("ownedNotes") != -1) {
+      scope = scope.get('/accounts/11111/notes').reply(200, {
+      	"myNotes" : [
+      	{
+      		"loanId":11111,
+      		"noteId":22222,
+      		"orderId":33333,
+      		"interestRate":13.57,
+      		"loanLength":36,
+      		"loanStatus":"Late (31-120 days)",
+      		"grade":"C",
+      		"loanAmount":10800,
+      		"noteAmount":25,
+      		"paymentsReceived":5.88,
+      		"issueDate":"2009-11-12T06:34:02.000-08:00",
+      		"orderDate":"2009-11-05T09:33:50.000-08:00",
+      		"loanStatusDate":"2013-05-20T13:13:53.000-07:00"
+      	},
+        {
+      		"loanId":22222,
+      		"noteId":22222,
+      		"orderId":33333,
+      		"interestRate":13.57,
+      		"loanLength":36,
+      		"loanStatus":"Late (31-120 days)",
+      		"grade":"C",
+      		"loanAmount":10800,
+      		"noteAmount":25,
+      		"paymentsReceived":5.88,
+      		"issueDate":"2009-11-12T06:34:02.000-08:00",
+      		"orderDate":"2009-11-05T09:33:50.000-08:00",
+      		"loanStatusDate":"2013-05-20T13:13:53.000-07:00"
+      	}
+        ]
+      });
     }
 
     if (optionsArr.indexOf("createPortfolio") != -1) {
