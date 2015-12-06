@@ -23,6 +23,23 @@ var Manager = function(options) {
   }
 }
 
+Manager.prototype.summary = function summary() {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    self.checkIfAuthenticated();
+
+    self._client.summary({
+      investorId: self._settings.investorId
+    }, function(err, result) {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  })
+}
+
 /*
 * @param {Object} options - An object to set options on how to list the loans
 * @param {boolean} options.showAll - Defaults to true; if false, will only list the loans in the most recent listing
