@@ -92,6 +92,51 @@ describe('filtering', function() {
         var is60months = function(loan) {return loan.term == 60}
         var makesLt90k = function(loan) {return loan.annualInc < 90000}
         return expect(manager.filterListedLoans(is60months, makesLt90k)).to.eventually.have.length(3);
+      });
+
+      it('should correctly apply a filter that returns a promise', function() {
+        var scope = nock(TEST_URL)
+          .get("/loans/listing?showAll=true")
+          .replyWithFile(200, __dirname + '/responses/loans_long.json');
+
+          var is36months = function(loan) {
+            return new Promise(function(resolve, reject) {
+              resolve(loan.term == 36);
+            })
+          }
+          return expect(manager.filterListedLoans(is36months)).to.eventually.have.length(1);
+      });
+
+      it('should correctly apply two filters where one is a promise and the other is not', function() {
+        var scope = nock(TEST_URL)
+          .get("/loans/listing?showAll=true")
+          .replyWithFile(200, __dirname + '/responses/loans_long.json');
+
+          var is60months = function(loan) {
+            return new Promise(function(resolve, reject) {
+              resolve(loan.term == 60);
+            })
+          }
+        var makesLt90k = function(loan) {return loan.annualInc < 90000}
+        return expect(manager.filterListedLoans(is60months, makesLt90k)).to.eventually.have.length(3);
+      });
+
+      it('should correctly apply two filters where both are promises', function() {
+        var scope = nock(TEST_URL)
+          .get("/loans/listing?showAll=true")
+          .replyWithFile(200, __dirname + '/responses/loans_long.json');
+
+          var is60months = function(loan) {
+            return new Promise(function(resolve, reject) {
+              resolve(loan.term == 60);
+            })
+          }
+        var makesLt90k = function(loan) {
+          return new Promise(function(resolve, reject) {
+            resolve(loan.annualInc < 90000)
+          })
+        }
+        return expect(manager.filterListedLoans(is60months, makesLt90k)).to.eventually.have.length(3);
       })
     });
   })

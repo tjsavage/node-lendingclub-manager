@@ -67,20 +67,35 @@ Manager.prototype.listLoans = function listLoans(options) {
 }
 
 Manager.prototype.filterListedLoans = function filterListedLoans() {
-  var filters = arguments;
+  var filters = [];
+  for (var key in arguments) {
+    if (arguments.hasOwnProperty(key)) {
+      filters.push(arguments[key]);
+    }
+  }
 
   return this.listLoans().then(function(loans) {
-    var filteredLoans = loans;
+    var filteredLoans = [];
 
-    if (filters.length) {
-      for (var key in filters) {
-        if (filters.hasOwnProperty(key)) {
-          filteredLoans = filteredLoans.filter(filters[key]);
+    loans.forEach(function(loan) {
+      var filterPromiseChain = Promise.resolve(true);
+
+      filters.forEach(function(filter) {
+        filterPromiseChain = filterPromiseChain.then(function(result) {
+          if (!result) { return false; }
+          return filter(loan);
+        })
+      });
+
+      filterPromiseChain.then(function(result) {
+        if (result) {
+          filteredLoans.push(loan);
         }
-      }
-    }
+      });
+    })
 
     return filteredLoans;
+
   });
 }
 

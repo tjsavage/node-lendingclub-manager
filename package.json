@@ -1,6 +1,6 @@
 {
   "name": "node-lendingclub-manager",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A management tool for accessing the lendingclub API",
   "main": "index.js",
   "scripts": {
