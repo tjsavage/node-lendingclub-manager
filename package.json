@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/tjsavage/node-lendingclub-manager#readme",
   "dependencies": {
+    "nock": "^3.5.0",
     "node-lendingclub": "^0.0.1"
   },
   "devDependencies": {

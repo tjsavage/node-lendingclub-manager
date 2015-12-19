@@ -57,10 +57,13 @@ Manager.prototype.listLoans = function listLoans(options) {
       if (err) {
         reject(err);
       } else {
-        if (!("loans" in result)) {
-          throw new Error("Unexpected format of result from API call")
+        if (!result) {
+          return reject(new Error("Undefined response from LendingClub API"));
         }
-        resolve(result.loans);
+        if (!("loans" in result)) {
+          return reject(new Error("Unexpected format of result from API call"));
+        }
+        return resolve(result.loans);
       }
     })
   })

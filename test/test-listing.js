@@ -77,5 +77,13 @@ describe('listLoans', function() {
       });
     })
 
+    it('should correctly throw if server responds with error', function() {
+      var scope = nock(TEST_URL)
+        .get("/loans/listing?showAll=false")
+        .reply(404);
+
+      return expect(manager.listLoans({ showAll: false })).to.eventually.be.rejected;
+    })
+
   });
 })
